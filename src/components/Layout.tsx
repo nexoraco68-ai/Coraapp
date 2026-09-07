@@ -1,8 +1,8 @@
 import { type ReactNode, useState } from 'react';
-import { LayoutDashboard, Crown, Wallet, TrendingUp, MessageSquare, Bell, Menu, X, Plus } from 'lucide-react';
+import { LayoutDashboard, Crown, Wallet, TrendingUp, MessageSquare, Bell, Menu, X, Plus, Users, Shield, Activity, Settings } from 'lucide-react';
 import { Logo } from './Logo';
 
-export type PageId = 'landing' | 'dashboard' | 'ceo' | 'cfo' | 'sales' | 'assistant' | 'recovery' | 'manage';
+export type PageId = 'landing' | 'dashboard' | 'manage' | 'ai-team' | 'ask' | 'activity' | 'permissions' | 'settings' | 'ceo' | 'cfo' | 'sales' | 'assistant' | 'recovery';
 
 interface NavItem {
   id: PageId;
@@ -13,7 +13,15 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, short: 'Home' },
-  { id: 'manage', label: 'Manage', icon: <Plus className="w-5 h-5" />, short: 'Add' },
+  { id: 'manage', label: 'Business Profile', icon: <Plus className="w-5 h-5" />, short: 'Profile' },
+  { id: 'ai-team', label: 'AI Team', icon: <Users className="w-5 h-5" />, short: 'Team' },
+  { id: 'ask', label: 'Ask CORA', icon: <MessageSquare className="w-5 h-5" />, short: 'Ask' },
+  { id: 'activity', label: 'Agent Activity', icon: <Activity className="w-5 h-5" />, short: 'Activity' },
+  { id: 'permissions', label: 'Permissions', icon: <Shield className="w-5 h-5" />, short: 'Perms' },
+  { id: 'settings', label: 'Settings', icon: <Settings className="w-5 h-5" />, short: 'Settings' },
+];
+
+const agentNavItems: NavItem[] = [
   { id: 'ceo', label: 'CORA CEO', icon: <Crown className="w-5 h-5" />, short: 'CEO' },
   { id: 'cfo', label: 'CORA CFO', icon: <Wallet className="w-5 h-5" />, short: 'CFO' },
   { id: 'sales', label: 'CORA Sales', icon: <TrendingUp className="w-5 h-5" />, short: 'Sales' },
@@ -48,8 +56,28 @@ export function Layout({ current, onNavigate, children, alertCount = 0, business
             <Logo size={40} />
           </button>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNav(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                current === item.id
+                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
+
+          {/* Divider */}
+          <div className="pt-3 pb-1 px-3">
+            <div className="text-[9px] font-semibold text-slate-600 uppercase tracking-widest">Specialist Agents</div>
+          </div>
+
+          {agentNavItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNav(item.id)}
@@ -72,7 +100,7 @@ export function Layout({ current, onNavigate, children, alertCount = 0, business
         <div className="p-4 border-t border-slate-800">
           <div className="text-xs text-slate-500">
             <div className="font-medium text-slate-400 mb-1">{businessName ?? 'Loading...'}</div>
-            <div>{isDemo ? 'Demo Mode' : 'Your Business'} · {onSwitchBusiness && <button onClick={onSwitchBusiness} className="text-blue-400 hover:text-blue-300 underline">Switch</button>}</div>
+            <div>{isDemo ? 'Demo Mode' : 'Your Business'}{onSwitchBusiness && <button onClick={onSwitchBusiness} className="text-blue-400 hover:text-blue-300 underline ml-1">Switch</button>}</div>
           </div>
         </div>
       </aside>
@@ -93,8 +121,8 @@ export function Layout({ current, onNavigate, children, alertCount = 0, business
 
         {/* Mobile nav drawer */}
         {mobileOpen && (
-          <nav className="md:hidden border-b border-slate-800 bg-slate-900/95 backdrop-blur p-3 space-y-1 animate-fade-in">
-            {navItems.map((item) => (
+          <nav className="md:hidden border-b border-slate-800 bg-slate-900/95 backdrop-blur p-3 space-y-1 animate-fade-in max-h-[70vh] overflow-y-auto">
+            {[...navItems, ...agentNavItems].map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
@@ -120,7 +148,7 @@ export function Layout({ current, onNavigate, children, alertCount = 0, business
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center justify-around px-1 py-1.5">
-          {navItems.map((item) => (
+          {navItems.slice(0, 5).map((item) => (
             <button
               key={item.id}
               onClick={() => handleNav(item.id)}
@@ -128,14 +156,7 @@ export function Layout({ current, onNavigate, children, alertCount = 0, business
                 current === item.id ? 'text-blue-400' : 'text-slate-500'
               }`}
             >
-              <div className="relative">
-                {item.icon}
-                {item.id === 'recovery' && alertCount > 0 && (
-                  <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
-                    {alertCount}
-                  </span>
-                )}
-              </div>
+              {item.icon}
               <span className="text-[9px] font-medium">{item.short}</span>
             </button>
           ))}

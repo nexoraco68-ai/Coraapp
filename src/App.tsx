@@ -9,10 +9,16 @@ import { SalesPage } from '@/pages/SalesPage';
 import { RecoveryPage } from '@/pages/RecoveryPage';
 import { AssistantPage } from '@/pages/AssistantPage';
 import { ManagePage } from '@/pages/ManagePage';
+import { AITeamPage } from '@/pages/AITeamPage';
+import { AskCORAPage } from '@/pages/AskCORAPage';
+import { AgentActivityPage } from '@/pages/AgentActivityPage';
+import { PermissionsPage } from '@/pages/PermissionsPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { loadBusinessData } from '@/lib/dataLoader';
 import { getOverdueInvoices } from '@/lib/analytics';
 import { Logo } from '@/components/Logo';
 import type { BusinessData, BusinessProfile } from '@/lib/types';
+import type { OrchestrationResult } from '@/lib/orchestrator';
 
 const DEMO_BUSINESS_ID = 'demo';
 const STORAGE_KEY = 'cora_active_business';
@@ -24,6 +30,7 @@ function App() {
   const [data, setData] = useState<BusinessData | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
+  const [lastOrchestration, setLastOrchestration] = useState<OrchestrationResult | undefined>(undefined);
 
   const loadData = useCallback((businessId: string) => {
     setLoading(true);
@@ -102,6 +109,22 @@ function App() {
         return <Dashboard data={data} onNavigate={navigate} />;
       case 'manage':
         return <ManagePage data={data} onDataChange={() => loadData(activeBusinessId!)} />;
+      case 'ai-team':
+        return <AITeamPage data={data} lastResult={lastOrchestration} onNavigate={navigate} />;
+      case 'ask':
+        return (
+          <AskCORAPage
+            data={data}
+            onNavigate={navigate}
+            onOrchestrationComplete={(r) => setLastOrchestration(r)}
+          />
+        );
+      case 'activity':
+        return <AgentActivityPage data={data} lastResult={lastOrchestration} />;
+      case 'permissions':
+        return <PermissionsPage />;
+      case 'settings':
+        return <SettingsPage isDemo={data.business.isDemo} businessName={data.business.name} />;
       case 'ceo':
         return <CEOPage data={data} onNavigate={navigate} />;
       case 'cfo':
